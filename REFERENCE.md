@@ -152,7 +152,9 @@ You can draw on the canvas any shape you want by using the functions below:
 
 ### Colors
 There are a few predefined colors in **dvlib**.
+
 ![colors](https://dvlib.org/images/dvlibcolors.png)
+
 If color is an argument of the **dvlib** function, it has to passed always as a *string* in HEX code (or predefined constant above.)
 Example:
 
