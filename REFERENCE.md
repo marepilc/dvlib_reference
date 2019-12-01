@@ -50,7 +50,7 @@ Because the functions are passed as arguments the function’s names are up to y
 
 Please bear in mind, that the canvas origin is located in the top-left corner.
  
- ![canvas origin](https://dvlib.org/images/canvasorigin.png)
+ ![canvas origin](https://dvlib.org/images/canvasorigin.png?)
  
  To illustrate this, clone the [dvlib_template](https://github.com/marepilc/dvlib_template) repository, install dependencies (`npm i`), and change the *main.ts* file as shown below:
  
@@ -154,7 +154,7 @@ There are a few predefined colors in **dvlib**.
 
 Color names: **light**, **dark**, **yellow**, **orange**, **green**, **red**, **blue**, and **magenta**.
 
-![colors](https://dvlib.org/images/dvlibcolors.png)
+![colors](https://dvlib.org/images/dvlibcolors.png?)
 
 If color is an argument of the **dvlib** function, it can be passed in the following ways: 
 
