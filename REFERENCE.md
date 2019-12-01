@@ -46,51 +46,50 @@ Because the functions are passed as arguments the function’s names are up to y
 1. Function **setup**. If it’s defined is called only once. You can use it for example to create objects declared as a global variables.
 2. Function **draw**. It is called by default 60 times per second. 
 3. In the function **events** you can define user interactions.
-4. Function **loadAssets** is used to pre-loading assets to the visualization (data in JSON format, pictures, and sounds)
+4. Function **loadAssets** is used to pre-loading assets to the visualization (data in JSON format and pictures).
 
-Please bear in mind, that the canvas origin is located in the bottom-left corner.
+Please bear in mind, that the canvas origin is located in the top-left corner.
  
  ![canvas origin](https://dvlib.org/images/canvasorigin.png)
  
  To illustrate this, clone the [dvlib_template](https://github.com/marepilc/dvlib_template) repository, install dependencies (`npm i`), and change the *main.ts* file as shown below:
  
  ```ts
- import "dvlib";
 import { 
     createCanvas, dvStart, resizeCanvas, background, fill, 
-    textSize, text, blueLight, mouse, addAsset, placeImage,
+    textSize, text, blue, mouse, addAsset, placeImage,
     assets, ImgOrigin 
-} from "dvlib";
-
-dvStart(setup, draw, events, loadAssets);
-
-let x: number;
-let y: number;
-
-function setup(): void {
+ } from "dvlib";
+ 
+ dvStart(setup, draw, events, loadAssets);
+ 
+ let x: number;
+ let y: number;
+ 
+ function setup(): void {
     let body: HTMLElement = document.getElementsByTagName('body')[0];
     createCanvas(body);
     resizeCanvas(window.innerWidth, window.innerHeight);
-}
-
-function draw() {
+ }
+ 
+ function draw() {
     background('#2d2f2f');
-    fill(blueLight);
+    fill(blue);
     textSize(24);
     text('Click anywhere to place logo', 50, 50);
-    placeImage(assets.logo, x, y, ImgOrigin.mCenter, 100, 100);
-}
-
-function events() {
-    mouse.mouseClick = function () {
+    placeImage(assets.logo, x, y, ImgOrigin.cc, 100, 100);
+ }
+ 
+ function events() {
+    mouse.click = function () {
         x = mouse.x;
         y = mouse.y;
     }
-}
-
-function loadAssets() {
+ }
+ 
+ function loadAssets() {
     addAsset({ id: 'logo', src: 'images/dvlogo.png'})
-}
+ }
  ```
  
 When you start the server, you will see that the canvas is resized to the entire window, and mouse click results in placing the logo image at cursor position.
@@ -112,8 +111,8 @@ When you start the server, you will see that the canvas is resized to the entire
 
 ### Drawing functions
 - [staticDrawing](#staticDrawing)
-- [sAttr](#sAttr)
-- [rAtt](#rAttr)
+- [save](#save)
+- [restore](#restore)
 - [clear](#clear)
 - [background](#background)
 - [stroke](#stroke)
@@ -153,15 +152,20 @@ You can draw on the canvas any shape you want by using the functions below:
 ### Colors
 There are a few predefined colors in **dvlib**.
 
+Color names: **light**, **dark**, **yellow**, **orange**, **green**, **red**, **blue**, and **magenta**.
+
 ![colors](https://dvlib.org/images/dvlibcolors.png)
 
-If color is an argument of the **dvlib** function, it has to passed always as a *string* in HEX code (or predefined constant above.)
-Example:
+If color is an argument of the **dvlib** function, it can be passed in the following ways: 
 
 ```ts
-fill('#567F98');
-// or fill('567F98');
-// or fill(blueLight);
+fill('#567F98');  // as string in HEX code
+fill(orange);  // as predefined constant
+fill('#567F98', 0.5);  // as string in HEX code with opacity value
+fill(0);  // as digit between 0 and 255 for the gray scale
+fill(127, 28, 215);  // as digits between 0 and 255 dor red, green and blue value  
+fill(127, 28, 215, 0.75);  // as digits between 0 and 255 dor red, green and blue value
+                           // with opacity walue
 ```
 
 Functions to work with colors:
@@ -171,7 +175,6 @@ Functions to work with colors:
 ### Assets
 Functions to work with assets:
 - [placeImage](#placeImage)
-- [playSound](#playSound)
 
 ### Typography
 Functions to work with text:
@@ -211,6 +214,7 @@ Functions to work with text:
 - [mm2px](#mm2px)
 - [px2mm](#px2mm)
 - [hexStr](#hexStr)
+- [svg2img](#svg2img)
 
 ##### Other Functions
 - [dist](#dist)
@@ -289,7 +293,6 @@ The last function you can pass as an argument to the **dvStart** is **loadAssets
 function loadAssets() {
     addAsset({ id: 'myPicture', src: 'path/myPicture.png'});
     addAsset({ id: 'data', src: 'path/data.json'});
-    addAsset({ id: 'mySound', src: 'path/mySound.mp3'});
 }
 ```
 
@@ -303,8 +306,8 @@ dvStart(setup, draw, null, loadAssets);
 ```
 
 #### createCanvas
-`createCanvas(target: HTMLElement): void`
-Function takes as an argument the HTMLElement and append to it the HTML Canvas. Additionally creates the instance of the **DV** class --- necessary for proper library functioning. 
+`createCanvas(target: HTMLElement, id?: string): void`
+Function takes as an argument the HTMLElement and append to it the HTML Canvas. Additionally creates the instance of the **DV** class --- necessary for proper library functioning. Optionally the canvas ID can be set.
 
 #### selectCanvas
 `selectCanvas(id: string): void`
@@ -389,24 +392,24 @@ scale(1, 2);  // from now everything on 'y' axis is doubled
 `staticDrawing(): void`
 If this function is called inside the **setup** function, the **draw** function will be executed only once.
 
-#### sAttr
-`sAttr(): void`
+#### save
+`save(): void`
 This function saves the basic canvas attributes: stroke, fill, strokeWidth, strokeCup, strokeJoin, dashLine, shadow, font and textAlign.
 
-#### rAttr
-`rAttr(): void`
-This function restores previously saved canvas attributes with the **sAttr** function.
+#### restore
+`restore(): void`
+This function restores previously saved canvas attributes with the **save** function.
 
 #### clear
 `clear(): void`
 Function erases entire canvas content.
 
 #### background
-`background(col: string): void`
+`background(...args: any[]): void`
 Function covers entire canvas with the specified [color](#Colors).
 
 #### stroke
-`stroke(col: string, alpha: number = 1): void`
+`stroke(...args: any[]): void`
 Function sets the [color](#Colors) and opacity of the stroke. The second argument (number between 0 and 1) is optional. By default the stroke is fully opaque.
 
 #### strokeWidth
@@ -442,7 +445,7 @@ This function changes the stroke style from solid to dashed. It takes as argumen
 This function restores the solid style of the stroke.
 
 #### fill
-`fill(col: string, alpha: number = 1): void`
+`fill(...args: any[]): void`
 Function sets the [color](#Colors) and opacity of the shapes' fill. The second argument (number between 0 and 1) is optional. By default the fill is fully opaque.
 
 #### noFill
@@ -450,7 +453,7 @@ Function sets the [color](#Colors) and opacity of the shapes' fill. The second a
 After function is called, the fill is not drawn.
 
 #### shadow
-`shadow(color: string, level: number, offsetX: number = 0, offsetY: number = 0): void`
+`shadow(level: number, offsetX: number, offsetY: number, ...color: any[]): void`
 Function defines shadow under the drawing shapes.
 
 #### point
@@ -462,8 +465,8 @@ Function draws point on the canvas at `x` and `y` coordinates --- a square 1px b
 Function draws a straight line from point `(x1, y1)` to point `(x2, y2)`.
 
 #### arc
-`arc(x: number, y: number, r: number, angle1: number, angle2: number): void`
-Function draws an arc on the canvas. Center of the arc is at coordinates `x` and `y`. The `r` defines the radius, `angle1` and `angle2` define start and end angle. The arc is drawn clockwise.
+`arc(x: number, y: number, r: number, startAngle: number, endAngle: number, anticlockwise?: boolean): void`
+Function draws an arc on the canvas. Center of the arc is at coordinates `x` and `y`. The `r` defines the radius, `startAngle` and `endAngle` define start and end angle. The arc is drawn clockwise by default.
 
 #### circle
 `circle(x: number, y: number, r: number): void`
@@ -474,12 +477,12 @@ Function draws a circle on the canvas at coordinates `x` and `y`. The `r` define
 Function draws an ellipse at coordinates `x` and `y`. The `r1` defines the radius on horizontal axis, and `r2` defines the radius on vertical axis. The `angle` parameter is optional and defines inclination of the ellipse.
 
 #### ring
-`ring(x: number, y: number, r1: number, r2: number, angle1: number = 0, angle2: number = TWO_PI): void`
-Function draws a ring on the canvas. Center of the arc is at coordinates `x` and `y`. The `r1` defines inner radius, `r2` outer radius, `angle1` and `angle2` define start and end angle. The ring is drawn clockwise.
+`ring(x: number, y: number, r1: number, r2: number, startAngle: number = 0, endAngle: number = TWO_PI): void`
+Function draws a ring on the canvas. Center of the arc is at coordinates `x` and `y`. The `r1` defines inner radius, `r2` outer radius, `startAngle` and `endAngle` define start and end angle. The ring is drawn clockwise.
 
 #### rect
 `rect(x: number, y: number, w: number, h: number, r: number = 0): void`
-The function draws a rectangle on the canvas. `x` and `y` defines  position of the bottom left corner. `w` and `h` defines width and the height of the rectangle.
+The function draws a rectangle on the canvas. `x` and `y` defines  position of the top left corner. `w` and `h` defines width and the height of the rectangle.
 
 #### star
 `star(x: number, y: number, r1: number, r2: number, n: number = 5): void`
@@ -532,6 +535,11 @@ Function draws a quadratic curve from the current path point to the point define
 #### blend
 `blend(color1: string, color2: string, proportion: number): string`
 Function blends two color together with defined `proportion` --- the number between 0 and 1. Function return blended color.
+This function accepts the color arguments only as as string in HEX code without opacity value.
+Example:
+```ts
+blend('#567F98', '#000000', 0.5);  // as string in HEX code
+```
 
 #### randomColor
 `randomColor(): string`
@@ -540,25 +548,21 @@ Function returns randomly generated color.
 #### placeImage
 `placeImage(img: any, x: number, y: number, origin: ImgOrigin, w?: number, h?: number): void`
 Function places an image (previously loaded with the [**loadAssets**](#Principles) function) on the canvas at `x` and `y` coordinates. `origin` defines the anchor position of the image.
-- `ImgOrigin.bLeft` --- bottom left
-- `ImgOrigin.bRight` --- bottom right
-- `ImgOrigin.bCenter` --- bottom center
-- `ImgOrigin.tLeft` --- top left
-- `ImgOrigin.tRight` --- top right
-- `ImgOrigin.tCenter` --- top center
-- `ImgOrigin.mLeft` --- middle left
-- `ImgOrigin.mRight` --- middle right
-- `ImgOrigin.mCenter` --- middle center
+- `ImgOrigin.lb` --- left bottom
+- `ImgOrigin.rb` --- right bottom
+- `ImgOrigin.cb` --- center bottom
+- `ImgOrigin.lt` --- left top
+- `ImgOrigin.rt` --- right top
+- `ImgOrigin.ct` --- center top
+- `ImgOrigin.lc` --- left center
+- `ImgOrigin.rc` --- right center
+- `ImgOrigin.cc` --- center center
 
 Arguments `w` and `h` are optional, if there is a need to change the default image dimensions.
 Example:
 ```ts
-placeImage(assets.logo, x, y, ImgOrigin.mCenter, 100, 100);
+placeImage(assets.logo, x, y, ImgOrigin.cc, 100, 100);
 ```
-
-#### playSound
-`playSound(sound: any)`
-Function plays sound previously loaded with the [**loadAssets**](#Principles) function.
 
 #### text
 `text(text: string, x: number, y: number): void`
@@ -577,22 +581,22 @@ Function returns the width of the text in pixels. Use only with the single line 
 Function returns an object with the text dimensions.
 
 #### textAlign
-`textAlign(h: HAlignment, v?: VAlignment): void`
+`textAlign(h: TextAlign, v?: TextBaseline): void`
 Function defines an alignment of the text.
-*HAlignment*
-- `HAlignment.left`
-- `HAlignment.right`
-- `HAlignment.center`
-- `HAlignment.start`
-- `HAlignment.end`
+*TextAlign*
+- `TextAlign.left`
+- `TextAlign.right`
+- `TextAlign.center`
+- `TextAlign.start`
+- `TextAlign.end`
 
-*VAlignment*
-- `VAlignment.top`
-- `VAlignment.hanging`
-- `VAlignment.middle`
-- `VAlignment.alphabetic`
-- `VAlignment.ideographic`
-- `VAlignment.bottom`
+*TextBaseline*
+- `TextBaseline.top`
+- `TextBaseline.hanging`
+- `TextBaseline.middle`
+- `TextBaseline.alphabetic`
+- `TextBaseline.ideographic`
+- `TextBaseline.bottom`
 
 #### fontStyle
 `fontStyle(style?: string): void | string`
@@ -619,12 +623,12 @@ fontFamily('Courier New');
 Function checks or sets the line height for multiline text. The default value is `1.1`
 
 #### textOnArc
-`textOnArc(text: string, x: number, y: number, r: number, startA: number, align: HAlignment = HAlignment.center, outside: boolean = true, inward: boolean = true, kerning: number = 0): number`
+`textOnArc(text: string, x: number, y: number, r: number, startAngle: number, align: TextAlign = TextAlign.center, outside: boolean = true, inward: boolean = true, kerning: number = 0): number`
 Function places the `text` on arc and return an angle in radians at which the text takes on the arc.
 Example:
 ```ts
-let a = textOnArc('First text', 200, 200, 130, -HALF_PI, HAlignment.left);
-textOnArc(' * Second text', 200, 200, 130, -HALF_PI + a, HAlignment.left);
+let a = textOnArc('First text', 200, 200, 130, -HALF_PI, TextAlign.left);
+textOnArc(' * Second text', 200, 200, 130, -HALF_PI + a, TextAlign.left);
 ```
 
 #### number2str
@@ -657,6 +661,10 @@ Function converts pixels to millimeters.
 #### hexStr
 `hexStr(v: number): string`
 Function converts number between 0 and 255 to HEX string.
+
+#### svg2img
+`svg2img(svg: string): HTMLImageElement`
+Function converts SVG text into HTMLImageElement.
 
 #### disc
 `dist(x1: number, y1: number, x2: number, y2: number): number`
@@ -724,7 +732,7 @@ Function returns a standard deviation based on specified method: `SDevMethod.sam
 function returns an integer number between `a` and `b` (incl. border values).
 
 #### choose
-`choose(numbers: any[]): any`
+`choose(items: any[]): any`
 Function returns randomly chosen element from an array.
 
 #### random
@@ -732,11 +740,11 @@ Function returns randomly chosen element from an array.
 Function --- if called with arguments `random(a, b)` --- returns a random number between `a` and `b`. If called without arguments, returns random number between 0 and 1.
 
 #### shuffle
-`shuffle(array: any[]): void`
+`shuffle(items: any[]): void`
 Function shuffle the array in place.
 
 #### unique
-`unique(array: any[]): any[]`
+`unique(items: any[]): any[]`
 Function returns sorted array of unique array elements.
 
 #### fibonacci
@@ -754,12 +762,12 @@ prnt(scale(6230)); // prints in console 155.75
 
 #### ordinalScale
 `ordinalScale(d: any[], padding: number, resultMin: number, resultMax: number): (x: number) => number`
-Function returns function which maps number on the linear scale.
+Function returns function which maps number on the ordinar scale.
 Example:
 ```ts
 let months = ['1Q', '2Q', '3Q', '4Q'];
 let scale = ordinalScale(months, 10, 0, 200);
-prnt(scale(3)); // prints in console 190
+prnt(scale(3)); // prints in console 190 (3 is the index of the fourth element)
 ```
 ### Vector
 `Vector(x: number, y: number)`
