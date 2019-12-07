@@ -176,6 +176,9 @@ Functions to work with colors:
 Functions to work with assets:
 - [placeImage](#placeImage)
 
+### Utils
+- [canvas](#canvas)
+
 ### Typography
 Functions to work with text:
 - [text](#text)
@@ -370,7 +373,7 @@ Class with the following properties:
 
 and with the following functions:
 - `start: () => void` --- starts the animation.
-- `stop: () => void` --- stops the animation and reset the `currentFrame` property.
+- `stop: (frame: number) => void` --- stops the animation at specified frame.
 
 #### translate
 `translate(x: number, y: number): void`
@@ -563,6 +566,9 @@ Example:
 ```ts
 placeImage(assets.logo, x, y, ImgOrigin.cc, 100, 100);
 ```
+#### canvas
+`canvas(): HTMLCanvasElement | undefined`
+Function returns the current canvas element.
 
 #### text
 `text(text: string, x: number, y: number): void`
